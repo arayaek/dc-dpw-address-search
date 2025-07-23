@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>DC MAR Address Lookup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            padding: 2rem;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.5rem;
+        }
+        th.label-cell {
+            width: 250px;
+        }
+        #selectedAddressContainer,
+        #submitButton {
+            display: none;
+        }
+    </style>
+
+    <script type="text/javascript">
+        const baseurl = "https://datagate.dc.gov/mar/open/api/v2.2";
+        const apikey = "1961bde4-4419-4ee5-84ef-ddd37c377eec";
+
+        $(function () {
+            $("#addressInput").on("input", function () {
+                const term = $(this).val();
+
+                // Clear details and hide section
+                $("#selectedAddressDetails tbody").empty();
+                $("#selectedAddressContainer").hide();
+                $("#submitButton").hide();
+
+                if (term.length < 3) {
+                    $("#resultsTable tbody").empty();
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + "/autocomplete",
+                    headers: {
+                        "apikey": apikey,
+                        "Content-Type": "application/json"
+                    },
+                    data: JSON.stringify({ address: term }),
+                    success: function (data) {
+                        const suggestions = data.Result || [];
+                        const $tbody = $("#resultsTable tbody");
+                        $tbody.empty();
+
+                        suggestions.forEach((item, index) => {
+                            const row = `
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="addressOption" value="${item}" id="addr${index}" />
+                                        <label for="addr${index}">${item}</label>
+                                    </td>
+                                </tr>`;
+                            $tbody.append(row);
+                        });
+                    }
+                });
+            });
+
+            $(document).on("change", "input[name='addressOption']", function () {
+                const selectedAddress = $(this).val().trim();
+
+                $.ajax({
+                    type: "POST",
+                    url: baseurl + "/locations?apikey=" + apikey,
+                    headers: {
+                        "apikey": apikey,
+                        "Content-Type": "application/json"
+                    },
+                    data: JSON.stringify({ address: selectedAddress }),
+                    success: function (data) {
+                        if (
+                            data.Result &&
+                            data.Result.addresses &&
+                            Array.isArray(data.Result.addresses) &&
+                            data.Result.addresses.length > 0
+                        ) {
+                            const props = data.Result.addresses[0].address.properties;
+
+                            const fullAddress = props.FullAddress || "";
+                            const marId = props.MarId || "";
+                            const ward = props.Ward || "";
+
+                            const html = `
+                                <tr><th class="label-cell">Full Address</th><td>${fullAddress}</td></tr>
+                                <tr><th class="label-cell">MarId</th><td>${marId}</td></tr>
+                                <tr><th class="label-cell">Ward</th><td>${ward}</td></tr>
+                            `;
+                            $("#selectedAddressDetails tbody").html(html);
+                            $("#selectedAddressContainer").show();
+                            $("#submitButton").show();
+                        } else {
+                            $("#selectedAddressDetails tbody").html('<tr><td colspan="2">No details found.</td></tr>');
+                            $("#selectedAddressContainer").show();
+                            $("#submitButton").hide();
+                        }
+                    },
+                    error: function () {
+                        $("#selectedAddressDetails tbody").html('<tr><td colspan="2">Error retrieving address details.</td></tr>');
+                        $("#selectedAddressContainer").show();
+                        $("#submitButton").hide();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h3>DC MAR Address Lookup</h3>
+        <p>
+            To add an address to the application from the Master Address Repository (MAR), please,
+            start typing the address, select an address from the suggested addresses and click on the
+            <strong>"Add Address to Application"</strong> button.
+        </p>
+
+        <input id="addressInput" type="text" placeholder="Type an address..." class="form-control mb-3" />
+
+        <table id="resultsTable" class="table table-bordered">
+            <thead class="thead-light">
+                <tr><th>Suggested Address</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div id="selectedAddressContainer">
+            <h5>Selected Address Details</h5>
+            <table id="selectedAddressDetails" class="table table-striped table-bordered">
+                <tbody>
+                    <tr><th class="label-cell">Full Address</th><td></td></tr>
+                    <tr><th class="label-cell">MarId</th><td></td></tr>
+                    <tr><th class="label-cell">Ward</th><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button id="submitButton" class="btn btn-success mt-3">Add Address to Application</button>
+    </div>
+</body>
+</html>
