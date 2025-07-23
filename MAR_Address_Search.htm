@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>DC MAR Address Lookup</title>
+    <title>Multi-Family Recycling Program – DC MAR Address Lookup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
@@ -13,15 +13,44 @@
             padding: 2rem;
             font-family: Arial, sans-serif;
         }
+
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .title-section img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .title-section h2 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        #mainImage {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5rem auto;
+        }
+
         table {
             margin-top: 1rem;
         }
+
         th, td {
             padding: 0.5rem;
         }
+
         th.label-cell {
             width: 250px;
         }
+
         #selectedAddressContainer,
         #submitButton {
             display: none;
@@ -35,8 +64,6 @@
         $(function () {
             $("#addressInput").on("input", function () {
                 const term = $(this).val();
-
-                // Clear details and hide section
                 $("#selectedAddressDetails tbody").empty();
                 $("#selectedAddressContainer").hide();
                 $("#submitButton").hide();
@@ -124,7 +151,13 @@
 
 <body>
     <div class="container">
-        <h3>DC MAR Address Lookup</h3>
+        <div class="title-section">
+            <img src="logo.png" alt="Program Logo" />
+            <h2>Multi-Family Recycling Program</h2>
+        </div>
+
+        <img id="mainImage" src="header.jpeg" alt="DC City Skyline" />
+
         <p>
             To add an address to the application from the Master Address Repository (MAR), please,
             start typing the address, select an address from the suggested addresses and click on the
