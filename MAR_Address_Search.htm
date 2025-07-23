@@ -12,6 +12,12 @@
         body {
             padding: 2rem;
             font-family: Arial, sans-serif;
+            background-color: #fff;
+        }
+
+        .content-wrapper {
+            max-width: 954px;
+            margin: 0 auto;
         }
 
         .title-section {
@@ -40,6 +46,7 @@
         }
 
         table {
+            width: 100%;
             margin-top: 1rem;
         }
 
@@ -54,6 +61,10 @@
         #selectedAddressContainer,
         #submitButton {
             display: none;
+        }
+
+        input[type="text"] {
+            width: 100%;
         }
     </style>
 
@@ -150,7 +161,7 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="content-wrapper">
         <div class="title-section">
             <img src="logo.png" alt="Program Logo" />
             <h2>Multi-Family Recycling Program</h2>
